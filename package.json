@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest"
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/GGXXMM/build-wheels/issues"
   },
-  "homepage": "https://github.com/GGXXMM/build-wheels#readme"
+  "homepage": "https://github.com/GGXXMM/build-wheels#readme",
+  "devDependencies": {
+    "vitest": "^0.31.1"
+  }
 }

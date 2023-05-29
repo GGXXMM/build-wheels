@@ -1,8 +1,12 @@
 ## 造轮子
 ### mini-vue
-- [ ] runtime
+- [x] runtime
+    - createApp
+    - render
 - [ ] compiler
-- [ ] reactivity
+- [x] reactivity
+    - reactive
+
 
 ### mini-vuex
 
