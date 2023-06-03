@@ -3,6 +3,7 @@
 - [x] runtime
     - createApp
     - render
+    - patch
 - [ ] compiler
 - [x] reactivity
     - reactive
