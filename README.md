@@ -8,7 +8,12 @@
 - [x] reactivity
     - reactive
 
-
 ### mini-vuex
+- [x] createStore
+    - store
+    - state
+    - commit
+    - dispatch
+    - action
 
 ### mini-pinia

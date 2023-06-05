@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/GGXXMM/build-wheels#readme",
   "devDependencies": {
-    "vitest": "^0.31.1"
+    "vitest": "^0.31.1",
+    "vue": "^3.3.4"
   }
 }
