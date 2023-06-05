@@ -1,5 +1,5 @@
 import { effect, reactive } from '../reactivity'
-import { createVNode } from './vnode'
+import { createVNode, sameVnode } from './vnode'
 // ---runtime-core----
 // custom render api
 export function createRender(options) {
@@ -11,26 +11,6 @@ export function createRender(options) {
     } = options
 
     const render = (vnode, container)=> {
-        // // 1. 获取宿主
-        // const container = options.querySelector(selector)
-        // // 2. 渲染视图
-        // const observed = reactive(rootComponent.data())
-        // // 3. 为组件定义一个更新函数
-        // const componentUpdateFn = () => {
-        //     const el = rootComponent.render.call(observed)
-        //     // 4. 追加到宿主
-        //     options.insert(el, container)
-        // }
-        // // 设置激活副作用
-        // effect(componentUpdateFn)
-        // // 初始化执行一次
-        // componentUpdateFn()
-
-        // // 挂载钩子
-        // if(rootComponent.mounted) {
-        //     rootComponent.mounted.call(observed)
-        // }
-
         // 如果存在vnode，则执行mount或patch，否则为unmount
         if(vnode) {
             patch(container._vnode || null, vnode, container)
@@ -43,7 +23,7 @@ export function createRender(options) {
      * @param {*} n2 新节点
      * @param {*} container 
      */
-    const patch = (n1, n2, container)=> {
+    const patch = (n1, n2, container, anchor = null)=> {
         // 判断 n2 的类型
         const { type, shapeFlag } = n2
         switch(type) {
@@ -66,7 +46,7 @@ export function createRender(options) {
             default:
                 if(shapeFlag & ShapeFlags.ELEMENT) {
                     // 普通dom节点处理
-                    processElement(n1, n2, container)
+                    processElement(n1, n2, container, anchor)
                 }else if(shapeFlag & ShapeFlags.COMPONENT) {
                     // component处理
                     processComponent(n1, n2, container)
@@ -74,9 +54,9 @@ export function createRender(options) {
         }
     }
 
-    const processElement = (n1, n2, container) => {
+    const processElement = (n1, n2, container, anchor = null) => {
         if(n1 == null) {
-            mountElement(n2, container)
+            mountElement(n2, container, anchor)
         }else{
             // patch
             patchElement(n1, n2, container)
@@ -90,7 +70,7 @@ export function createRender(options) {
             updateComponent(n1, n2, container)
         }
     }
-    const mountElement = (vnode, container) => {
+    const mountElement = (vnode, container, anchor = null) => {
         const el = (vnode.el = hostCreateElement(vnode.type));
 
         // children为文本
@@ -101,9 +81,9 @@ export function createRender(options) {
             vnode.children.forEach(child => patch(null, child, el))
         }
         // 插入元素
-        hostInsert(el, container)
+        hostInsert(el, container, anchor)
     }
-
+    // patch element节点
     const patchElement = (n1, n2, container) => {
         // 获取要更新的元素节点
         const el = n2.el = n1.el
@@ -135,10 +115,119 @@ export function createRender(options) {
             }
         }
     }
+    /**
+     * diff算法
+     * @param {*} oldCh 旧子节点
+     * @param {*} newCh 新子节点
+     * @param {*} container 父节点
+     */
+    const updateChildren = (oldCh, newCh, container) => {
+        let i = 0
+        let e1 = oldCh.length - 1 // 旧节点的终止位置
+        let e2 = newCh.length - 1 // 新节点的终止位置
 
-    const updateChildren = (oldCh, newCh, parentElm) => {
+        // 1.从头开始比对
+        // (a b) c
+        // (a b) d e
+        while(i <= e1 && i<= e2) {
+            const n1 = oldCh[i]
+            const n2 = newCh[i]
+            if(sameVnode(n1, n2)) {
+                patch(n1, n2, container)
+            }else{
+                break
+            }
+            i++
+        }
 
+        // 2.从尾开始比对
+        // a (b c)
+        // d e (b c)
+        while(i <= e1 && i<= e2) {
+            const n1 = oldCh[e1]
+            const n2 = newCh[e2]
+            if(sameVnode(n1, n2)) {
+                patch(n1, n2, container)
+            }else{
+                break
+            }
+            e1--
+            e2--
+        }
+
+        // 3.如果新节点多余，新增
+        if(i > e1) {
+            if(i < e2) {
+                while(i <= e2) {
+                    // 挂载新增节点
+                    patch(null, newCh[i], container)
+                    i++
+                }
+            }
+        }
+
+        // 4.如果旧节点多余，删除
+        else if(i > e2) {
+            while(i <= e1) {
+                hostRemove(oldCh[i])
+                i++
+            }
+        }
+
+        // 5.未知序列（移动、新增、删除）
+        // [i ... e1 + 1]: a b [c d e] f g
+        // [i ... e2 + 1]: a b [e d c h] f g
+        else {
+            let lastIndex = 0
+            for(let i = 0;i < newCh.length;i++) {
+                const newVnode = newCh[i]
+                // 设置节点是否相同标识
+                let hasSameVnode = false
+                for (let j = 0; j < oldCh.length; j++) {
+                    const oldVnode = oldCh[j]
+                    if(sameVnode(newVnode, oldVnode)) {
+                        hasSameVnode = true
+                        // 更新节点
+                        patch(oldVnode, newVnode, container)
+                        if(j < lastIndex) {
+                            // 需要移动
+                            const prevVnode = newCh[i-1]
+                            if(prevVnode) {
+                                // 移动
+                                const anchor = prevVnode.nextSibling
+                                hostInsert(oldVnode.el, container, anchor)
+                            }
+                        }else{
+                            lastIndex = j
+                        }
+                        break
+                    } 
+                }
+                // 如果未找到相同节点，则需要新增
+                if(!hasSameVnode) {
+                    const prevVnode = newCh[i - 1]
+                    let anchor = null
+                    if(!prevVnode) {
+                        anchor = container.firstChild
+                    }else{
+                        anchor = prevVnode.nextSibling
+                    }
+                    // 新增节点
+                    patch(null, newVnode, container, anchor)
+                }
+            }
+
+            // 查找oldCh中存在，newCh不存在的节点，做删除
+            for (let i = 0; i < oldCh.length; i++) {
+                const oldVnode = oldCh[i]
+                const sameVnode = newCh.find(v => v.key === oldVnode.key)
+                if(!sameVnode) {
+                    hostRemove(oldVnode)
+                }
+            }
+        }
     }
+
     /**
      * 初始化挂载
      * @param {object} initialVNode 
@@ -201,6 +290,7 @@ export function createAppAPI(render) {
     return function createApp(rootComponent) {
         const app = {
             mount(selector) {
+                // 创建vnode虚拟dom
                 const vnode = createVNode(rootComponent)
                 // 将虚拟dom转换为dom，并追加至宿主
                 render(vnode, selector)

@@ -10,3 +10,6 @@ export function createVNode(type, props, children) {
     return {type, props, children}
 }
 
+export function sameVnode(n1, n2) {
+    return n1.tag === n2.tag && n1.key === n2.key
+}
