@@ -1,0 +1,16 @@
+{
+  "name": "mini-vite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.14.2",
+    "vue": "^3.3.4"
+  }
+}
