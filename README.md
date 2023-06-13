@@ -9,7 +9,7 @@
 - [x] reactivity
     - reactive
 
-### mini-vuex
+### mini-vuex(4.x)
 - [x] createStore
     - store
     - state
@@ -21,7 +21,7 @@
 - [x] defineStore（定义store）
 - [x] createPinia（pinia统一管理多个store）
 
-### mini-router
+### mini-router(4.x)
 - [x] createRouter
     - router实例
     - RouterLink
