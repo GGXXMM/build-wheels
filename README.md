@@ -21,6 +21,12 @@
 - [x] defineStore（定义store）
 - [x] createPinia（pinia统一管理多个store）
 
+### mini-router
+- [x] createRouter
+    - router实例
+    - RouterLink
+    - RouterView
+
 ## 构建工具
 - [ ] webpack
 - [x] vite
