@@ -28,7 +28,12 @@
     - RouterView
 
 ## 构建工具
-- [ ] webpack
-- [x] vite
+- [x] super-tiny-compiler
+    - tokenizer 词法分析
+    - parser 语法分析
+    - transformer 转换
+    - coddeGenerator 生成目标代码
+- [ ] mini-webpack
+- [x] mini-vite
    - 解析 ES Module 文件
    - 解析第三方依赖
