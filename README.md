@@ -41,5 +41,9 @@
         - 存储文件路径、依赖及 code，生成依赖图
     - 根据依赖图生成 bundle
 - [x] mini-vite
-   - 解析 ES Module 文件
-   - 解析第三方依赖
+    - 解析 ES Module 文件
+    - 解析第三方依赖
+- [x] mini-vue-compiler
+    - parse 生成ast
+    - transform 转化ast
+    - generate 生成目标代码
