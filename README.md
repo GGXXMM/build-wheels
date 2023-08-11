@@ -33,7 +33,13 @@
     - parser 语法分析
     - transformer 转换
     - coddeGenerator 生成目标代码
-- [ ] mini-webpack
+- [x] mini-webpack
+    - 读取文件
+    - 分析依赖 parseModules
+        - 解析文件为 ast
+        - 根据 ast 转换浏览器可执行代码 code
+        - 存储文件路径、依赖及 code，生成依赖图
+    - 根据依赖图生成 bundle
 - [x] mini-vite
    - 解析 ES Module 文件
    - 解析第三方依赖
